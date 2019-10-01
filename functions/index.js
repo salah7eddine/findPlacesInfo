@@ -3,7 +3,6 @@ const functions = require('firebase-functions');
 
 // The Firebase Admin SDK to access the Firebase Realtime Database.
 const admin = require('firebase-admin');
-admin.initializeApp();
 
 const cors = require('cors')({ orgin: true });
 const Busboy = require('busboy');
@@ -18,12 +17,26 @@ const storage = new Storage({
   projectID: 'ionic-angular-course-1bcb3'
 });
 
+const serviceAccount = require('./ionic-angular-course.json');
+admin.initializeApp({
+  credential: admin.credential.cert(require(serviceAccount)),
+  databaseURL: 'https://ionic-angular-course-1bcb3.firebaseio.com'
+});
+
 exports.storeImage = functions.https.onRequest((req, res) => {
 
   return cors(req, res, () => {
     if (req.method !== 'POST') {
       return res.status(500).json({ message: 'Not allowed.' });
     }
+
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Unauthorized!' });
+    }
+
+    let idToken;
+    idToken = req.headers.authorization.split('Bearer ')[1];
+
     const busboy = new Busboy({ headers: req.headers });
     let uploadData;
     let oldImagePath;
@@ -45,21 +58,23 @@ exports.storeImage = functions.https.onRequest((req, res) => {
         imagePath = oldImagePath;
       }
 
-      console.log(uploadData);
-      console.log(imagePath);
-      return storage
-        .bucket('ionic-angular-course-1bcb3.appspot.com')
-        .upload(uploadData.filePath, {
-          uploadType: 'media',
-          destination: imagePath,
-          metadata: {
-            metadata: {
-              contentType: uploadData.type,
-              firebaseStorageDownloadTokens: id
-            }
-          }
-        })
-        .then(() => {
+      return admin
+        .auth()
+        .verifyIdToken(idToken)
+        .then(decodedToken => {
+          return storage
+            .bucket('ionic-angular-course-1bcb3.appspot.com')
+            .upload(uploadData.filePath, {
+              uploadType: 'media',
+              destination: imagePath,
+              metadata: {
+                metadata: {
+                  contentType: uploadData.type,
+                  firebaseStorageDownloadTokens: id
+                }
+              }
+            })
+        }).then(() => {
           // http[s]://firebasestorage.googleapis.com/<api-version>/b/<bucket>/o/<object-path>
           return res.status(201).json({
             imageUrl:

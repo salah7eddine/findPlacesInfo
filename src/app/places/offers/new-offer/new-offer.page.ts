@@ -106,7 +106,6 @@ export class NewOfferPage implements OnInit {
           .pipe(
             switchMap(
               uploadRes => {
-                console.log(uploadRes);
                 return this.placesService.addPlace(
                   this.form.value.title,
                   this.form.value.description,

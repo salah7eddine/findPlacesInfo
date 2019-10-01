@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { PlaceModule } from './../../model/places/PlaceModule';
 import { PlacesService } from './../../services/places/places.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-discover',
@@ -47,19 +48,21 @@ export class DiscoverPage implements OnInit, OnDestroy {
   }
 
   onFilterUpdate(event: CustomEvent<SegmentChangeEventDetail>) {
-    if (event.detail.value === 'all') {
-      this.relevantPlaces = this.loadedPlaces;
-      if (this.relevantPlaces) {
-        this.listedLodedPlaces = this.relevantPlaces.slice(1);
+    this.authService.getUserId().pipe(take(1)).subscribe(userId => {
+      if (event.detail.value === 'all') {
+        this.relevantPlaces = this.loadedPlaces;
+        if (this.relevantPlaces) {
+          this.listedLodedPlaces = this.relevantPlaces.slice(1);
+        }
+      } else {
+        this.relevantPlaces = this.loadedPlaces.filter(
+          place => place.userId !== userId
+        );
+        if (this.relevantPlaces) {
+          this.listedLodedPlaces = this.relevantPlaces.slice(1);
+        }
       }
-    } else {
-      this.relevantPlaces = this.loadedPlaces.filter(
-        place => place.userId !== this.authService.getUserId()
-      );
-      if (this.relevantPlaces) {
-        this.listedLodedPlaces = this.relevantPlaces.slice(1);
-      }
-    }
+    });
   }
 
   ngOnDestroy(): void {

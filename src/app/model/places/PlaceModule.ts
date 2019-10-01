@@ -1,10 +1,4 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { PlaceLocation } from './location.model';
-@NgModule({
-  declarations: [],
-  imports: [CommonModule]
-})
 
 export class PlaceModule {
   constructor(

@@ -34,6 +34,7 @@ export class ImagePickerComponent implements OnInit {
       this.filePickerRef.nativeElement.click();
       return;
     }
+    // Inversement Logic 
     Plugins.Camera.getPhoto({
       quality: 50,
       source: CameraSource.Prompt,
@@ -45,7 +46,6 @@ export class ImagePickerComponent implements OnInit {
       this.selectedImage = image.base64String;
       this.imagePick.emit(image.base64String);
     }).catch(error => {
-      console.log(error);
       if (this.usePicker) {
         this.filePickerRef.nativeElement.click();
       }
