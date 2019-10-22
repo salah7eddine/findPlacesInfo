@@ -3,6 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { GuardGuard } from './services/auth/guard.guard';
 
 const routes: Routes = [
+  // { path: '', redirectTo: 'places', pathMatch: 'full' },
   { path: '', redirectTo: 'places', pathMatch: 'full' },
   {
     path: 'home',
@@ -18,6 +19,12 @@ const routes: Routes = [
     path: 'bookings',
     loadChildren: './bookings/bookings.module#BookingsPageModule',
     canLoad: [GuardGuard]
+  },
+  {
+    path: 'movies', loadChildren: './movies/movies/movies.module#MoviesPageModule', canLoad: [GuardGuard]
+  },
+  {
+    path: 'movies/:id', loadChildren: './movies/movie-details/movie-details.module#MovieDetailsPageModule', canLoad: [GuardGuard]
   }
 ];
 

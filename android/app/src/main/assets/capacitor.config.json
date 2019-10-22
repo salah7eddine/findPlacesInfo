@@ -1,5 +1,5 @@
 {
-  "appId": "io.ionic.starter",
+  "appId": "com.WaldChama.FindPlaceInfo",
   "appName": "FindPlacesInfo",
   "bundledWebRuntime": false,
   "npmClient": "npm",
